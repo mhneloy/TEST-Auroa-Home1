@@ -1,0 +1,293 @@
+{% comment %} SOLE — Split Personality {% endcomment %}
+<style>
+  #sole-split-{{ section.id }} {
+    position: relative;
+    overflow: hidden;
+    min-height: {{ section.settings.min_height }}px;
+    display: flex;
+    cursor: none;
+    user-select: none;
+  }
+  #sole-split-{{ section.id }} .sp-side {
+    position: absolute;
+    top: 0; bottom: 0;
+    overflow: hidden;
+    transition: width 0.55s cubic-bezier(0.77,0,0.18,1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #sole-split-{{ section.id }} .sp-left {
+    left: 0;
+    width: 50%;
+    background: {{ section.settings.left_bg }};
+    clip-path: polygon(0 0, 100% 0, calc(100% - {{ section.settings.diagonal }}px) 100%, 0 100%);
+    z-index: 2;
+  }
+  #sole-split-{{ section.id }} .sp-right {
+    right: 0;
+    width: 50%;
+    background: {{ section.settings.right_bg }};
+    clip-path: polygon({{ section.settings.diagonal }}px 0, 100% 0, 100% 100%, 0 100%);
+    z-index: 1;
+    right: 0;
+    left: auto;
+  }
+  #sole-split-{{ section.id }}.hover-left .sp-left  { width: {{ section.settings.expand_pct }}%; }
+  #sole-split-{{ section.id }}.hover-left .sp-right { width: {{ 100 | minus: section.settings.expand_pct }}%; }
+  #sole-split-{{ section.id }}.hover-right .sp-right { width: {{ section.settings.expand_pct }}%; }
+  #sole-split-{{ section.id }}.hover-right .sp-left  { width: {{ 100 | minus: section.settings.expand_pct }}%; }
+
+  #sole-split-{{ section.id }} .sp-content {
+    position: relative;
+    z-index: 3;
+    padding: {{ section.settings.content_pad }}px;
+    max-width: {{ section.settings.content_max_w }}px;
+    text-align: {{ section.settings.content_align }};
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  #sole-split-{{ section.id }} .sp-left .sp-content { margin-right: auto; }
+  #sole-split-{{ section.id }} .sp-right .sp-content { margin-left: auto; }
+
+  #sole-split-{{ section.id }} .sp-eyebrow {
+    font-family: {{ section.settings.sub_font }};
+    font-size: {{ section.settings.eyebrow_size }}px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: block;
+    opacity: 0.7;
+  }
+  #sole-split-{{ section.id }} .sp-left .sp-eyebrow { color: {{ section.settings.left_accent }}; }
+  #sole-split-{{ section.id }} .sp-right .sp-eyebrow { color: {{ section.settings.right_accent }}; }
+
+  #sole-split-{{ section.id }} .sp-headline {
+    font-family: {{ section.settings.font_family }};
+    font-size: {{ section.settings.headline_size }}px;
+    font-weight: {{ section.settings.headline_weight }};
+    line-height: 1.0;
+    letter-spacing: {{ section.settings.headline_spacing }}px;
+    text-transform: {{ section.settings.headline_transform }};
+    margin: 0 0 20px;
+  }
+  #sole-split-{{ section.id }} .sp-left .sp-headline { color: {{ section.settings.left_text }}; }
+  #sole-split-{{ section.id }} .sp-right .sp-headline { color: {{ section.settings.right_text }}; }
+
+  #sole-split-{{ section.id }} .sp-body {
+    font-family: {{ section.settings.sub_font }};
+    font-size: {{ section.settings.body_size }}px;
+    line-height: 1.65;
+    margin-bottom: 28px;
+    opacity: 0.75;
+  }
+  #sole-split-{{ section.id }} .sp-left .sp-body { color: {{ section.settings.left_text }}; }
+  #sole-split-{{ section.id }} .sp-right .sp-body { color: {{ section.settings.right_text }}; }
+
+  #sole-split-{{ section.id }} .sp-btn {
+    display: inline-block;
+    padding: {{ section.settings.btn_pad_v }}px {{ section.settings.btn_pad_h }}px;
+    font-family: {{ section.settings.sub_font }};
+    font-size: {{ section.settings.btn_size }}px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: {{ section.settings.btn_radius }}px;
+    transition: background .25s, color .25s, transform .2s;
+  }
+  #sole-split-{{ section.id }} .sp-btn:hover { transform: translateY(-3px); }
+  #sole-split-{{ section.id }} .sp-left .sp-btn {
+    background: {{ section.settings.left_btn_bg }};
+    color: {{ section.settings.left_btn_text }};
+    border-color: {{ section.settings.left_btn_border }};
+  }
+  #sole-split-{{ section.id }} .sp-left .sp-btn:hover {
+    background: {{ section.settings.left_btn_hover_bg }};
+    color: {{ section.settings.left_btn_hover_text }};
+  }
+  #sole-split-{{ section.id }} .sp-right .sp-btn {
+    background: {{ section.settings.right_btn_bg }};
+    color: {{ section.settings.right_btn_text }};
+    border-color: {{ section.settings.right_btn_border }};
+  }
+  #sole-split-{{ section.id }} .sp-right .sp-btn:hover {
+    background: {{ section.settings.right_btn_hover_bg }};
+    color: {{ section.settings.right_btn_hover_text }};
+  }
+  #sole-split-{{ section.id }} .sp-bg-img {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    width: 100%; height: 100%;
+    opacity: {{ section.settings.img_opacity | divided_by: 100.0 }};
+    pointer-events: none;
+    display: block;
+  }
+  #sole-split-{{ section.id }} .sp-divider {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: {{ section.settings.divider_color }};
+    z-index: 10;
+    transform: translateX(-50%) skewX(-{{ section.settings.diagonal | divided_by: 8 }}deg);
+    opacity: {{ section.settings.divider_opacity | divided_by: 100.0 }};
+    transition: left 0.55s cubic-bezier(0.77,0,0.18,1);
+    pointer-events: none;
+  }
+  #sole-split-{{ section.id }}.hover-left  .sp-divider { left: {{ section.settings.expand_pct }}%; }
+  #sole-split-{{ section.id }}.hover-right .sp-divider { left: {{ 100 | minus: section.settings.expand_pct }}%; }
+  #sole-split-{{ section.id }} .sp-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    display: none;
+    mix-blend-mode: difference;
+  }
+  @media (max-width: 749px) {
+    #sole-split-{{ section.id }} { flex-direction: column; min-height: auto; cursor: default; }
+    #sole-split-{{ section.id }} .sp-left,
+    #sole-split-{{ section.id }} .sp-right {
+      position: relative;
+      width: 100% !important;
+      clip-path: none !important;
+      min-height: {{ section.settings.mobile_height }}px;
+    }
+    #sole-split-{{ section.id }} .sp-right { left: 0; right: 0; }
+    #sole-split-{{ section.id }} .sp-divider { display: none; }
+    #sole-split-{{ section.id }} .sp-headline { font-size: {{ section.settings.headline_size | times: 0.6 | round }}px; }
+  }
+</style>
+
+<section id="sole-split-{{ section.id }}">
+  <div class="sp-cursor" id="spCursor{{ section.id }}"></div>
+
+  <div class="sp-side sp-left" id="spLeft{{ section.id }}">
+    {% if section.settings.left_image != blank %}
+      <img class="sp-bg-img" src="{{ section.settings.left_image | image_url: width: 1200 }}" alt="" loading="lazy">
+    {% endif %}
+    <div class="sp-content">
+      {% if section.settings.left_eyebrow != blank %}<span class="sp-eyebrow">{{ section.settings.left_eyebrow }}</span>{% endif %}
+      {% if section.settings.left_headline != blank %}<h2 class="sp-headline">{{ section.settings.left_headline }}</h2>{% endif %}
+      {% if section.settings.left_body != blank %}<p class="sp-body">{{ section.settings.left_body }}</p>{% endif %}
+      {% if section.settings.left_btn_label != blank %}<a class="sp-btn" href="{{ section.settings.left_btn_url }}">{{ section.settings.left_btn_label }}</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="sp-side sp-right" id="spRight{{ section.id }}">
+    {% if section.settings.right_image != blank %}
+      <img class="sp-bg-img" src="{{ section.settings.right_image | image_url: width: 1200 }}" alt="" loading="lazy">
+    {% endif %}
+    <div class="sp-content">
+      {% if section.settings.right_eyebrow != blank %}<span class="sp-eyebrow">{{ section.settings.right_eyebrow }}</span>{% endif %}
+      {% if section.settings.right_headline != blank %}<h2 class="sp-headline">{{ section.settings.right_headline }}</h2>{% endif %}
+      {% if section.settings.right_body != blank %}<p class="sp-body">{{ section.settings.right_body }}</p>{% endif %}
+      {% if section.settings.right_btn_label != blank %}<a class="sp-btn" href="{{ section.settings.right_btn_url }}">{{ section.settings.right_btn_label }}</a>{% endif %}
+    </div>
+  </div>
+
+  <div class="sp-divider" id="spDivider{{ section.id }}"></div>
+</section>
+
+<script>
+(function(){
+  var sec=document.getElementById('sole-split-{{ section.id }}');
+  var left=document.getElementById('spLeft{{ section.id }}');
+  var right=document.getElementById('spRight{{ section.id }}');
+  var cursor=document.getElementById('spCursor{{ section.id }}');
+  if(!sec)return;
+  if(window.innerWidth<=749)return;
+
+  cursor.style.display='block';
+
+  sec.addEventListener('mousemove',function(e){
+    cursor.style.left=e.clientX+'px';
+    cursor.style.top=e.clientY+'px';
+    var r=sec.getBoundingClientRect();
+    var pct=(e.clientX-r.left)/r.width;
+    sec.classList.remove('hover-left','hover-right');
+    if(pct<0.5){ sec.classList.add('hover-left'); cursor.style.background='rgba(255,255,255,0.1)'; }
+    else { sec.classList.add('hover-right'); cursor.style.background='rgba(0,0,0,0.1)'; }
+  });
+
+  sec.addEventListener('mouseleave',function(){
+    sec.classList.remove('hover-left','hover-right');
+    cursor.style.display='none';
+  });
+  sec.addEventListener('mouseenter',function(){
+    cursor.style.display='block';
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "SOLE — Split Personality",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Left Side" },
+    { "type": "image_picker", "id": "left_image", "label": "Left Background Image" },
+    { "type": "text", "id": "left_eyebrow", "label": "Eyebrow Text", "default": "Dark & Luxury" },
+    { "type": "text", "id": "left_headline", "label": "Headline", "default": "Own The Night" },
+    { "type": "textarea", "id": "left_body", "label": "Body Text", "default": "Bold silhouettes. Premium materials. Built for those who move differently." },
+    { "type": "text", "id": "left_btn_label", "label": "Button Label", "default": "Shop Dark" },
+    { "type": "url", "id": "left_btn_url", "label": "Button URL" },
+    { "type": "color", "id": "left_bg", "label": "Background Color", "default": "#0d1117" },
+    { "type": "color", "id": "left_text", "label": "Text Color", "default": "#f0ece4" },
+    { "type": "color", "id": "left_accent", "label": "Eyebrow Color", "default": "#c8a96e" },
+    { "type": "color", "id": "left_btn_bg", "label": "Button BG", "default": "#c8a96e" },
+    { "type": "color", "id": "left_btn_text", "label": "Button Text", "default": "#0d1117" },
+    { "type": "color", "id": "left_btn_border", "label": "Button Border", "default": "#c8a96e" },
+    { "type": "color", "id": "left_btn_hover_bg", "label": "Button Hover BG", "default": "#0d1117" },
+    { "type": "color", "id": "left_btn_hover_text", "label": "Button Hover Text", "default": "#c8a96e" },
+    { "type": "header", "content": "Right Side" },
+    { "type": "image_picker", "id": "right_image", "label": "Right Background Image" },
+    { "type": "text", "id": "right_eyebrow", "label": "Eyebrow Text", "default": "Clean & Minimal" },
+    { "type": "text", "id": "right_headline", "label": "Headline", "default": "Less Is More" },
+    { "type": "textarea", "id": "right_body", "label": "Body Text", "default": "Pure form. Refined lines. The shoe that says everything by saying nothing." },
+    { "type": "text", "id": "right_btn_label", "label": "Button Label", "default": "Shop Clean" },
+    { "type": "url", "id": "right_btn_url", "label": "Button URL" },
+    { "type": "color", "id": "right_bg", "label": "Background Color", "default": "#f5f2ee" },
+    { "type": "color", "id": "right_text", "label": "Text Color", "default": "#1a1a1a" },
+    { "type": "color", "id": "right_accent", "label": "Eyebrow Color", "default": "#1a1a1a" },
+    { "type": "color", "id": "right_btn_bg", "label": "Button BG", "default": "#1a1a1a" },
+    { "type": "color", "id": "right_btn_text", "label": "Button Text", "default": "#f5f2ee" },
+    { "type": "color", "id": "right_btn_border", "label": "Button Border", "default": "#1a1a1a" },
+    { "type": "color", "id": "right_btn_hover_bg", "label": "Button Hover BG", "default": "#f5f2ee" },
+    { "type": "color", "id": "right_btn_hover_text", "label": "Button Hover Text", "default": "#1a1a1a" },
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "expand_pct", "label": "Hover Expand %", "min": 55, "max": 80, "step": 1, "default": 68 },
+    { "type": "range", "id": "diagonal", "label": "Diagonal Slant (px)", "min": 0, "max": 120, "step": 4, "default": 60 },
+    { "type": "range", "id": "min_height", "label": "Min Height (px)", "min": 300, "max": 900, "step": 10, "default": 600 },
+    { "type": "range", "id": "mobile_height", "label": "Mobile Each Side Height (px)", "min": 200, "max": 600, "step": 10, "default": 360 },
+    { "type": "range", "id": "content_pad", "label": "Content Padding (px)", "min": 20, "max": 120, "step": 4, "default": 64 },
+    { "type": "range", "id": "content_max_w", "label": "Content Max Width (px)", "min": 200, "max": 600, "step": 10, "default": 380 },
+    { "type": "select", "id": "content_align", "label": "Content Align", "options":[{"value":"left","label":"Left"},{"value":"center","label":"Center"}], "default": "left" },
+    { "type": "range", "id": "img_opacity", "label": "BG Image Opacity (%)", "min": 10, "max": 100, "step": 5, "default": 40 },
+    { "type": "color", "id": "divider_color", "label": "Divider Color", "default": "#ffffff" },
+    { "type": "range", "id": "divider_opacity", "label": "Divider Opacity (%)", "min": 0, "max": 100, "step": 5, "default": 20 },
+    { "type": "header", "content": "Typography" },
+    { "type": "text", "id": "font_family", "label": "Display Font", "default": "Georgia, serif" },
+    { "type": "text", "id": "sub_font", "label": "Body Font", "default": "Arial, sans-serif" },
+    { "type": "range", "id": "headline_size", "label": "Headline Size (px)", "min": 28, "max": 120, "step": 2, "default": 72 },
+    { "type": "select", "id": "headline_weight", "label": "Headline Weight", "options":[{"value":"700","label":"Bold"},{"value":"800","label":"Extra Bold"},{"value":"900","label":"Black"}], "default": "800" },
+    { "type": "select", "id": "headline_transform", "label": "Headline Transform", "options":[{"value":"none","label":"None"},{"value":"uppercase","label":"Uppercase"}], "default": "uppercase" },
+    { "type": "range", "id": "headline_spacing", "label": "Letter Spacing (px)", "min": -5, "max": 10, "step": 1, "default": -2 },
+    { "type": "range", "id": "eyebrow_size", "label": "Eyebrow Size (px)", "min": 9, "max": 18, "step": 1, "default": 11 },
+    { "type": "range", "id": "body_size", "label": "Body Size (px)", "min": 12, "max": 22, "step": 1, "default": 15 },
+    { "type": "range", "id": "btn_size", "label": "Button Size (px)", "min": 10, "max": 18, "step": 1, "default": 12 },
+    { "type": "range", "id": "btn_pad_v", "label": "Button Padding V (px)", "min": 8, "max": 28, "step": 2, "default": 14 },
+    { "type": "range", "id": "btn_pad_h", "label": "Button Padding H (px)", "min": 16, "max": 64, "step": 2, "default": 32 },
+    { "type": "range", "id": "btn_radius", "label": "Button Radius (px)", "min": 0, "max": 50, "step": 1, "default": 0 }
+  ],
+  "presets": [{ "name": "SOLE — Split Personality" }]
+}
+{% endschema %}
