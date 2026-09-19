@@ -117,6 +117,7 @@
       "type": "shariful-advance-banner",
       "name": "SOLE — Split Personality",
       "settings": {
+        "left_image": "shopify://shop_images/armani-bag-small-02-07.jpg",
         "left_eyebrow": "Dark & Luxury",
         "left_headline": "Own The Night",
         "left_body": "Bold silhouettes. Premium materials. Built for those who move differently.",
@@ -130,6 +131,7 @@
         "left_btn_border": "#c8a96e",
         "left_btn_hover_bg": "#0d1117",
         "left_btn_hover_text": "#c8a96e",
+        "right_image": "shopify://shop_images/imageye___-_imgi_628_Excellent_4.85_-6.jpg",
         "right_eyebrow": "Clean & Minimal",
         "right_headline": "Less Is More",
         "right_body": "Pure form. Refined lines. The shoe that says everything by saying nothing.",
