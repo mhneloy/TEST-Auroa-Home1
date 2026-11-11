@@ -8590,6 +8590,20 @@ body.video-playing {
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
+.single-option-radio label.is-sold-out {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.single-option-radio label.is-sold-out-cross:before {
+  position: absolute;
+  content: "";
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid;
+  border-color: var(--g-main);
+  transform: rotate(45deg);
+}
 .single-option-radio label[title="white"],
 .single-option-radio label[title="White"] {
   border: 1px solid #ddd !important;

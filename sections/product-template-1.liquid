@@ -572,7 +572,8 @@
                   product_selector: block.settings.product_selector, 
                   sw_color_product: block.settings.sw_color_product,
                   size_color: block.settings.size_color,
-                  color_circle: block.settings.color_circle
+                  color_circle: block.settings.color_circle,
+                  out_of_stock_behavior: block.settings.out_of_stock_behavior
                  %}
                
                 </div>
@@ -1437,6 +1438,27 @@ initPhotoSwipeFromDOM('.my-gallery');
             {
               "value": "select",
               "label": "Dropdown"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "out_of_stock_behavior",
+          "label": "Out-of-stock variant options",
+          "info": "Choose how variants marked unavailable by Shopify are displayed.",
+          "default": "disable",
+          "options": [
+            {
+              "value": "hide",
+              "label": "Hide"
+            },
+            {
+              "value": "disable",
+              "label": "Disable"
+            },
+            {
+              "value": "cross",
+              "label": "Cross out"
             }
           ]
         },

@@ -1744,6 +1744,107 @@ theme.Product = (function() {
         'variantChange' + this.settings.namespace,
         this._updateSwatchTitle.bind(this)
       );
+      this.$container.on(
+        'variantChange' + this.settings.namespace,
+        this._updateSoldOutOptions.bind(this)
+      );
+      this._updateSoldOutOptions();
+    },
+
+    _updateSoldOutOptions: function() {
+      var self = this,
+          $selectors = $(this.selectors.singleOptionSelector, this.$container),
+          selectedOptions = {};
+
+      $selectors.each(function() {
+        var $selector = $(this),
+            type = $selector.attr('type'),
+            optionIndex = $selector.data('index');
+
+        if (type !== 'radio' || this.checked) {
+          selectedOptions[optionIndex] = $selector.val();
+        }
+      });
+
+      function isUnavailable(optionIndex, value) {
+        var available = false;
+
+        $.each(self.productSingleObject.variants, function(index, variant) {
+          if (variant[optionIndex] !== value) return;
+
+          var matchesSelectedOptions = true;
+          $.each(selectedOptions, function(selectedIndex, selectedValue) {
+            if (
+              selectedIndex !== optionIndex &&
+              variant[selectedIndex] !== selectedValue
+            ) {
+              matchesSelectedOptions = false;
+              return false;
+            }
+          });
+
+          if (matchesSelectedOptions && variant.available) {
+            available = true;
+            return false;
+          }
+        });
+
+        return !available;
+      }
+
+      $selectors.each(function() {
+        var $selector = $(this),
+            type = $selector.attr('type'),
+            $container = type === 'radio' ? $selector.closest('fieldset') : $selector,
+            behavior = $container.data('out-of-stock-behavior'),
+            optionIndex = $selector.data('index');
+
+        if (
+          behavior !== 'hide' &&
+          behavior !== 'disable' &&
+          behavior !== 'cross'
+        ) {
+          return;
+        }
+
+        if (type === 'radio') {
+          var $label = $selector.next('label'),
+              unavailable = isUnavailable(optionIndex, $selector.val()),
+              hidden = behavior === 'hide' && unavailable;
+
+          $selector
+            .prop('disabled', unavailable)
+            .prop('hidden', hidden)
+            .toggleClass('is-sold-out', unavailable);
+          $label
+            .prop('hidden', hidden)
+            .toggleClass('is-sold-out', unavailable && behavior !== 'hide')
+            .toggleClass('is-sold-out-cross', unavailable && behavior === 'cross')
+            .attr('aria-disabled', unavailable ? 'true' : null);
+          return;
+        }
+
+        $selector.find('option').each(function() {
+          var $option = $(this),
+              unavailable = isUnavailable(optionIndex, $option.val()),
+              hidden = behavior === 'hide' && unavailable,
+              originalText = $option.data('original-text');
+
+          if (originalText === undefined) {
+            originalText = $option.text();
+            $option.data('original-text', originalText);
+          }
+
+          $option
+            .prop('disabled', unavailable)
+            .prop('hidden', hidden)
+            .text(
+              behavior === 'cross' && unavailable
+                ? originalText + ' - ' + theme.strings.soldOut
+                : originalText
+            );
+        });
+      });
     },
 
     _updateStock: function(variant) {
