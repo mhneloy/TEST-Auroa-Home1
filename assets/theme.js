@@ -4201,7 +4201,10 @@ theme.quickview = (function() {
                   var variant_img = '';
                   for (cc = 0; cc < variants.length; cc++) { 
                     if (variants[cc]['option'+k] == value) {
-                      variant_img = variants[cc]['featured_image']['src']; 
+                      if (variants[cc]['featured_image']) {
+                        variant_img = variants[cc]['featured_image']['src'];
+                      }
+                      if (variant_img) break;
                     }
                   }
                   
